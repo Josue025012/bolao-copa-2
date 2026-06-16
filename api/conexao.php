@@ -1,46 +1,48 @@
 <?php
-// db.php - Conexão PostgreSQL para Vercel (serverless)
+// conexao.php - Vercel + Neon Postgres (corrigido SNI + SSL)
 
-// Pega a URL do Vercel Postgres
-$dbUrl = getenv("DATABASE_URL") ?: getenv("DATABASE_URL_UNPOOLED");
+$dbUrl = getenv("DATABASE_URL_UNPOOLED") ?: getenv("DATABASE_URL");
 
 if (!$dbUrl) {
-    throw new Exception("DATABASE_URL não definida nas variáveis de ambiente.");
+    throw new Exception("DATABASE_URL não encontrada no ambiente.");
 }
 
-// Faz parse da URL
 $parsed = parse_url($dbUrl);
 
 if (!$parsed) {
     throw new Exception("DATABASE_URL inválida.");
 }
 
-$host = $parsed["host"] ?? null;
-$port = $parsed["port"] ?? 5432;
+$host   = $parsed["host"] ?? null;
+$port   = $parsed["port"] ?? 5432;
 $dbname = isset($parsed["path"]) ? ltrim($parsed["path"], "/") : null;
-$user = $parsed["user"] ?? null;
-$pass = $parsed["pass"] ?? null;
+$user   = $parsed["user"] ?? null;
+$pass   = $parsed["pass"] ?? null;
 
-// Validação básica
+// validação básica
 if (!$host || !$dbname || !$user) {
-    throw new Exception("Falha ao extrair dados da DATABASE_URL.");
+    throw new Exception("Falha ao ler DATABASE_URL.");
 }
 
-// DSN PostgreSQL
-$dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+/*
+⚠️ IMPORTANTE (Neon fix):
+- sslmode=require
+- options=endpoint=XXXX (SNI)
+*/
 
-// Opções PDO (importante no Vercel)
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_PERSISTENT         => false, // serverless NÃO usar persistente
-];
+// tenta extrair endpoint (Neon)
+$endpoint = explode('.', $host)[0]; // ex: ep-cool-123456
+
+$dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require;options=endpoint=" . $endpoint;
 
 try {
-    $conn = new PDO($dsn, $user, $pass, $options);
+    $pdo = new PDO($dsn, $user, $pass, [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_PERSISTENT         => false,
+    ]);
 } catch (PDOException $e) {
-    // Mostra erro controlado (bom pra debug no Vercel logs)
     throw new Exception("Erro ao conectar no Postgres: " . $e->getMessage());
 }
 
-// função opcional pra reutilizar conexão
+return $pdo;
