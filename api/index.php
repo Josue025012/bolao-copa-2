@@ -27,6 +27,7 @@ $nome_logado = $usuario['nome'];
 ENVIAR PALPITE
 --------------------------------------
 */
+$mensagem = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $jogo_id = (int) $_POST['jogo_id'];

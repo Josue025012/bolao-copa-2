@@ -156,7 +156,8 @@ foreach ($resultado_detalhes as $palpite) {
                         <?php
                         if ($resultado_ranking && count($resultado_ranking) > 0) {
                             $posicao = 1;
-                            while($linha = $resultado_ranking->fetch_assoc()) {
+                            foreach ($resultado_detalhes as $palpite) {
+
                                 $nome_atual = $linha['nome_usuario'];
                                 $classe_pos = "pos"; $exibir_pos = $posicao;
                                 if($posicao == 1) { $exibir_pos = "🥇"; $classe_pos .= " pos-1"; }
