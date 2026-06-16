@@ -4,10 +4,10 @@ $conn = require __DIR__ . "/conexao.php";
 
 date_default_timezone_set('America/Sao_Paulo');
 
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
-    exit;
-}
+// if (!isset($_SESSION['usuario_id'])) {
+//     header("Location: login.php");
+//     exit;
+// }
 
 $id_logado = $_SESSION['usuario_id'];
 $nome_logado = $_SESSION['usuario_nome'];
