@@ -1,6 +1,6 @@
 <?php
-session_start();
 $conn = require __DIR__ . '/conexao.php';
+session_start();
 
 $mensagem = "";
 
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION['usuario_nome'] = $usuario['nome'];
             $_SESSION['usuario_tipo'] = $usuario['tipo'];
 
-            header("Location: api/index.php");
+            header("Location: /api/index.php");
             exit;
 
         } else {

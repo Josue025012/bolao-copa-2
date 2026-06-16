@@ -1,9 +1,9 @@
 <?php
-session_start();
 $conn = require __DIR__ . "/conexao.php";
+session_start();
 
 if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
+    header("Location: /api/login.php");
     exit;
 }
 
