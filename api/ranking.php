@@ -1,6 +1,6 @@
 <?php
-// O session_start() precisa obrigatoriamente ser a primeira linha do arquivo
-include 'conexao.php';
+// include 'conexao.php';
+$conn = require __DIR__ . "/conexao.php"; 
 session_start();
 
 if (!isset($_SESSION['usuario_id'])) {
