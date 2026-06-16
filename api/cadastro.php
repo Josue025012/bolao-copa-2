@@ -1,36 +1,49 @@
 <?php
-// include 'conexao.php';
-$conn = require __DIR__ . "/conexao.php"; 
+$conn = require __DIR__ . "/conexao.php";
 session_start();
 
 $mensagem = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome = trim($_POST['nome']);
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $nome  = trim($_POST['nome']);
     $email = trim($_POST['email']);
     $senha = $_POST['senha'];
 
     if (!empty($nome) && !empty($email) && !empty($senha)) {
-        // Criptografia segura nativa do PHP
+
         $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
 
-        // Prepared Statement para evitar SQL Injection
-        $stmt = $conn->prepare("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $nome, $email, $senha_hash);
-
         try {
-            if ($stmt->execute()) {
-                $mensagem = "<div class='alert success'>✅ Cadastro realizado! <a href='login.php'>Faça login</a></div>";
+            $stmt = $conn->prepare("
+                INSERT INTO usuarios (nome, email, senha)
+                VALUES (:nome, :email, :senha)
+            ");
+
+            $stmt->execute([
+                "nome"  => $nome,
+                "email" => $email,
+                "senha" => $senha_hash
+            ]);
+
+            $mensagem = "<div class='alert success'>✅ Cadastro realizado! <a href='login.php'>Faça login</a></div>";
+
+        } catch (PDOException $e) {
+
+            // erro típico de email duplicado
+            if ($e->getCode() == 23505) {
+                $mensagem = "<div class='alert error'>⚠️ Este e-mail já está cadastrado.</div>";
+            } else {
+                $mensagem = "<div class='alert error'>⚠️ Erro ao cadastrar usuário.</div>";
             }
-        } catch (mysqli_sql_exception $e) {
-            $mensagem = "<div class='alert error'>⚠️ Este e-mail já está cadastrado.</div>";
         }
-        $stmt->close();
+
     } else {
         $mensagem = "<div class='alert error'>⚠️ Preencha todos os campos.</div>";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

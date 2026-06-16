@@ -1,36 +1,70 @@
 <?php
-// include 'conexao.php';
-$conn = require __DIR__ . "/conexao.php"; 
 session_start();
+$conn = require __DIR__ . "/conexao.php";
 
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit;
 }
 
-// 1. Busca o ranking trazendo o nome real da tabela de usuários através do JOIN
-$sql_ranking = "SELECT u.nome AS nome_usuario, SUM(p.pontos) as total_pontos, COUNT(p.id) as palpites_feitos 
-                FROM palpites p 
-                JOIN usuarios u ON p.usuario_id = u.id 
-                GROUP BY p.usuario_id 
-                ORDER BY total_pontos DESC, palpites_feitos DESC, nome_usuario ASC";
-$resultado_ranking = $conn->query($sql_ranking);
+/*
+--------------------------------------
+1. RANKING
+--------------------------------------
+*/
+$sql_ranking = "
+    SELECT 
+        u.nome AS nome_usuario,
+        SUM(p.pontos) AS total_pontos,
+        COUNT(p.id) AS palpites_feitos
+    FROM palpites p
+    JOIN usuarios u ON p.usuario_id = u.id
+    GROUP BY u.nome
+    ORDER BY total_pontos DESC, palpites_feitos DESC, nome_usuario ASC
+";
 
-// 2. Busca os detalhes alterando de p.nome_usuario para u.nome
-$sql_detalhes = "SELECT u.nome AS nome_usuario, p.palpite_time_a, p.palpite_time_b, p.pontos, 
-                        j.time_a, j.time_b, j.gols_a_real, j.gols_b_real, j.status, 
-                        DATE_FORMAT(j.data_jogo, '%d/%m') as data_formatada 
-                 FROM palpites p 
-                 JOIN jogos j ON p.jogo_id = j.id 
-                 JOIN usuarios u ON p.usuario_id = u.id
-                 ORDER BY u.nome ASC, j.data_jogo DESC";
-$resultado_detalhes = $conn->query($sql_detalhes);
+$stmt = $conn->prepare($sql_ranking);
+$stmt->execute();
+$resultado_ranking = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+/*
+--------------------------------------
+2. DETALHES
+--------------------------------------
+*/
+$sql_detalhes = "
+    SELECT 
+        u.nome AS nome_usuario,
+        p.palpite_time_a,
+        p.palpite_time_b,
+        p.pontos,
+        j.time_a,
+        j.time_b,
+        j.gols_a_real,
+        j.gols_b_real,
+        j.status,
+        TO_CHAR(j.data_jogo, 'DD/MM') AS data_formatada
+    FROM palpites p
+    JOIN jogos j ON p.jogo_id = j.id
+    JOIN usuarios u ON p.usuario_id = u.id
+    ORDER BY u.nome ASC, j.data_jogo DESC
+";
+
+$stmt = $conn->prepare($sql_detalhes);
+$stmt->execute();
+$resultado_detalhes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+/*
+--------------------------------------
+3. AGRUPAR POR USUÁRIO
+--------------------------------------
+*/
 $palpites_por_usuario = [];
-if ($resultado_detalhes && $resultado_detalhes->num_rows > 0) {
-    while ($palpite = $resultado_detalhes->fetch_assoc()) {
-        $palpites_por_usuario[$palpite['nome_usuario']][] = $palpite;
-    }
+
+foreach ($resultado_detalhes as $palpite) {
+    $palpites_por_usuario[$palpite['nome_usuario']][] = $palpite;
 }
 ?>
 

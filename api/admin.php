@@ -1,24 +1,33 @@
 <?php
-// include 'conexao.php';
-$conn = require __DIR__ . "/conexao.php"; 
 session_start();
+$conn = require __DIR__ . "/conexao.php";
 
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     header("Location: login.php");
     exit;
 }
 
-
 $senha_correta = "admin123";
 $mensagem = "";
 
-if (isset($_GET['action']) && $_GET['action'] == 'logout') {
+/*
+--------------------------------------
+LOGOUT
+--------------------------------------
+*/
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     unset($_SESSION['admin_logado']);
     header("Location: admin.php");
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
+/*
+--------------------------------------
+LOGIN ADMIN SIMPLES
+--------------------------------------
+*/
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
+
     if ($_POST['senha_admin'] === $senha_correta) {
         $_SESSION['admin_logado'] = true;
     } else {
@@ -26,43 +35,122 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
     }
 }
 
+/*
+======================================
+ÁREA ADMIN
+======================================
+*/
 if (isset($_SESSION['admin_logado']) && $_SESSION['admin_logado'] === true) {
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cadastrar_jogo'])) {
-        $time_a = $conn->real_escape_string($_POST['time_a']);
-        $time_b = $conn->real_escape_string($_POST['time_b']);
+
+    /*
+    ----------------------------------
+    CADASTRAR JOGO
+    ----------------------------------
+    */
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['cadastrar_jogo'])) {
+
+        $time_a = trim($_POST['time_a']);
+        $time_b = trim($_POST['time_b']);
         $data_jogo = $_POST['data_jogo'];
 
-        if (!empty($time_a) && !empty($time_b) && !empty($data_jogo)) {
-            $sql = "INSERT INTO jogos (time_a, time_b, data_jogo, status) VALUES ('$time_a', '$time_b', '$data_jogo', 'aberto')";
-            if ($conn->query($sql) === TRUE) {
-                $mensagem = "<div class='alert success'>🎮 Jogo cadastrado com sucesso!</div>";
-            }
+        if ($time_a && $time_b && $data_jogo) {
+
+            $sql = "INSERT INTO jogos (time_a, time_b, data_jogo, status)
+                    VALUES (:time_a, :time_b, :data_jogo, 'aberto')";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                "time_a" => $time_a,
+                "time_b" => $time_b,
+                "data_jogo" => $data_jogo
+            ]);
+
+            $mensagem = "<div class='alert success'>🎮 Jogo cadastrado com sucesso!</div>";
         }
     }
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['encerrar_jogo'])) {
-        $jogo_id = intval($_POST['jogo_id']);
-        $gols_a_real = intval($_POST['gols_a_real']);
-        $gols_b_real = intval($_POST['gols_b_real']);
+    /*
+    ----------------------------------
+    ENCERRAR JOGO + PONTOS
+    ----------------------------------
+    */
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['encerrar_jogo'])) {
 
-        $sql_update_jogo = "UPDATE jogos SET gols_a_real = $gols_a_real, gols_b_real = $gols_b_real, status = 'encerrado' WHERE id = $jogo_id";
-        if ($conn->query($sql_update_jogo) === TRUE) {
-            $palpites = $conn->query("SELECT id, palpite_time_a, palpite_time_b FROM palpites WHERE jogo_id = $jogo_id");
-            $resultado_real = ($gols_a_real > $gols_b_real) ? 1 : (($gols_b_real > $gols_a_real) ? 2 : 0);
+        $jogo_id = (int) $_POST['jogo_id'];
+        $gols_a_real = (int) $_POST['gols_a_real'];
+        $gols_b_real = (int) $_POST['gols_b_real'];
 
-            while ($row = $palpites->fetch_assoc()) {
-                $p_id = $row['id']; $pa = $row['palpite_time_a']; $pb = $row['palpite_time_b']; $pontos = 0;
-                $resultado_palpite = ($pa > $pb) ? 1 : (($pb > $pa) ? 2 : 0);
+        // atualiza jogo
+        $stmt = $conn->prepare("
+            UPDATE jogos 
+            SET gols_a_real = :a, gols_b_real = :b, status = 'encerrado'
+            WHERE id = :id
+        ");
 
-                if ($pa == $gols_a_real && $pb == $gols_b_real) { $pontos = 10; } 
-                elseif ($resultado_palpite == $resultado_real) { $pontos = 5; }
+        $stmt->execute([
+            "a" => $gols_a_real,
+            "b" => $gols_b_real,
+            "id" => $jogo_id
+        ]);
 
-                $conn->query("UPDATE palpites SET pontos = $pontos WHERE id = $p_id");
+        // busca palpites
+        $stmt = $conn->prepare("
+            SELECT id, palpite_time_a, palpite_time_b
+            FROM palpites
+            WHERE jogo_id = :id
+        ");
+
+        $stmt->execute(["id" => $jogo_id]);
+        $palpites = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $resultado_real = ($gols_a_real > $gols_b_real) ? 1 :
+                         (($gols_b_real > $gols_a_real) ? 2 : 0);
+
+        foreach ($palpites as $p) {
+
+            $pa = (int)$p['palpite_time_a'];
+            $pb = (int)$p['palpite_time_b'];
+
+            $pontos = 0;
+
+            $resultado_palpite = ($pa > $pb) ? 1 :
+                                 (($pb > $pa) ? 2 : 0);
+
+            if ($pa === $gols_a_real && $pb === $gols_b_real) {
+                $pontos = 10;
+            } elseif ($resultado_palpite === $resultado_real) {
+                $pontos = 5;
             }
-            $mensagem = "<div class='alert success'>🏁 Pontos calculados com sucesso!</div>";
+
+            $stmt = $conn->prepare("
+                UPDATE palpites
+                SET pontos = :pontos
+                WHERE id = :id
+            ");
+
+            $stmt->execute([
+                "pontos" => $pontos,
+                "id" => $p['id']
+            ]);
         }
+
+        $mensagem = "<div class='alert success'>🏁 Pontos calculados com sucesso!</div>";
     }
-    $jogos_abertos = $conn->query("SELECT id, time_a, time_b FROM jogos WHERE status = 'aberto' ORDER BY data_jogo ASC");
+
+    /*
+    ----------------------------------
+    LISTA JOGOS ABERTOS
+    ----------------------------------
+    */
+    $stmt = $conn->prepare("
+        SELECT id, time_a, time_b
+        FROM jogos
+        WHERE status = 'aberto'
+        ORDER BY data_jogo ASC
+    ");
+
+    $stmt->execute();
+    $jogos_abertos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
 

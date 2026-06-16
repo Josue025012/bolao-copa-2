@@ -1,25 +1,26 @@
 <?php
-// include 'conexao.php';
-$conn = require __DIR__ . "/conexao.php"; 
 session_start();
+$conn = require __DIR__ . '/conexao.php';
 
 $mensagem = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
     $email = trim($_POST['email']);
     $senha = $_POST['senha'];
 
-    $stmt = $conn->prepare("SELECT id, nome, senha, tipo FROM usuarios WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    // PDO query
+    $stmt = $conn->prepare("SELECT id, nome, senha, tipo FROM usuarios WHERE email = :email");
+    $stmt->execute([
+        "email" => $email
+    ]);
 
-    if ($resultado->num_rows === 1) {
-        $usuario = $resultado->fetch_assoc();
-        
-        // Verifica se a senha confere com o hash criptografado
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($usuario) {
+
         if (password_verify($senha, $usuario['senha'])) {
-            // Proteção contra fixação de sessão
+
             session_regenerate_id(true);
 
             $_SESSION['usuario_id'] = $usuario['id'];
@@ -28,13 +29,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             header("Location: index.php");
             exit;
+
         } else {
             $mensagem = "<div class='alert error'>🔒 E-mail ou senha incorretos!</div>";
         }
+
     } else {
         $mensagem = "<div class='alert error'>🔒 E-mail ou senha incorretos!</div>";
     }
-    $stmt->close();
 }
 ?>
 <!DOCTYPE html>

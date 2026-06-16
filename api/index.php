@@ -1,11 +1,9 @@
 <?php
-// include 'conexao.php';
-$conn = require __DIR__ . "/conexao.php"; 
+$conn = require __DIR__ . "/conexao.php";
 session_start();
 
 date_default_timezone_set('America/Sao_Paulo');
 
-// Bloqueia o acesso caso o usuário não esteja logado
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit;
@@ -15,36 +13,83 @@ $id_logado = $_SESSION['usuario_id'];
 $nome_logado = $_SESSION['usuario_nome'];
 $mensagem = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $jogo_id = intval($_POST['jogo_id']);
-    $gols_a = intval($_POST['gols_a']);
-    $gols_b = intval($_POST['gols_b']);
+/*
+--------------------------------------
+ENVIAR PALPITE
+--------------------------------------
+*/
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $jogo_id = (int) $_POST['jogo_id'];
+    $gols_a  = (int) $_POST['gols_a'];
+    $gols_b  = (int) $_POST['gols_b'];
 
     if ($jogo_id > 0) {
-        $busca_jogo = $conn->query("SELECT data_jogo FROM jogos WHERE id = $jogo_id");
-        if ($busca_jogo->num_rows > 0) {
-            $dados_jogo = $busca_jogo->fetch_assoc();
-            
-            // Validações de segurança e tempo
+
+        // busca jogo
+        $stmt = $conn->prepare("
+            SELECT data_jogo
+            FROM jogos
+            WHERE id = :id
+        ");
+
+        $stmt->execute(["id" => $jogo_id]);
+        $dados_jogo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($dados_jogo) {
+
+            // jogo já começou
             if (time() >= strtotime($dados_jogo['data_jogo'])) {
                 $mensagem = "<div class='alert error'>⏳ Bloqueado! Este jogo já começou.</div>";
-            } elseif (isset($_COOKIE['palpite_jogo_' . $jogo_id]) || isset($_SESSION['votou_jogo_' . $jogo_id])) {
+            }
+
+            // já enviou (cookie/session ainda mantido como extra)
+            elseif (
+                isset($_COOKIE['palpite_jogo_' . $jogo_id]) ||
+                isset($_SESSION['votou_jogo_' . $jogo_id])
+            ) {
                 $mensagem = "<div class='alert error'>🚫 Você já enviou um palpite para este jogo!</div>";
-            } else {
-                // Nova validação baseada no ID único do usuário
-                $check = $conn->query("SELECT id FROM palpites WHERE jogo_id = $jogo_id AND usuario_id = $id_logado");
-                if ($check->num_rows > 0) {
+            }
+
+            else {
+
+                // valida no banco (REGRA REAL)
+                $stmt = $conn->prepare("
+                    SELECT id
+                    FROM palpites
+                    WHERE jogo_id = :jogo_id
+                    AND usuario_id = :usuario_id
+                ");
+
+                $stmt->execute([
+                    "jogo_id" => $jogo_id,
+                    "usuario_id" => $id_logado
+                ]);
+
+                $existe = $stmt->fetch();
+
+                if ($existe) {
                     $mensagem = "<div class='alert error'>⚠️ Você já enviou um palpite para este jogo!</div>";
                 } else {
-                    // Insere o palpite amarrado à coluna relacional usuario_id
-                    $sql = "INSERT INTO palpites (jogo_id, usuario_id, palpite_time_a, palpite_time_b) VALUES ($jogo_id, $id_logado, $gols_a, $gols_b)";
-                    if ($conn->query($sql) === TRUE) {
-                        $_SESSION['votou_jogo_' . $jogo_id] = true;
-                        setcookie('palpite_jogo_' . $jogo_id, '1', time() + (86400 * 30), "/");
-                        $mensagem = "<div class='alert success'>⚽ Palpite gravado com sucesso!</div>";
-                    } else {
-                        $mensagem = "<div class='alert error'>❌ Erro ao enviar: " . $conn->error . "</div>";
-                    }
+
+                    // INSERIR PALPITE
+                    $stmt = $conn->prepare("
+                        INSERT INTO palpites
+                        (jogo_id, usuario_id, palpite_time_a, palpite_time_b)
+                        VALUES (:jogo_id, :usuario_id, :a, :b)
+                    ");
+
+                    $stmt->execute([
+                        "jogo_id" => $jogo_id,
+                        "usuario_id" => $id_logado,
+                        "a" => $gols_a,
+                        "b" => $gols_b
+                    ]);
+
+                    $_SESSION['votou_jogo_' . $jogo_id] = true;
+                    setcookie('palpite_jogo_' . $jogo_id, '1', time() + (86400 * 30), "/");
+
+                    $mensagem = "<div class='alert success'>⚽ Palpite gravado com sucesso!</div>";
                 }
             }
         }
@@ -53,7 +98,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$jogos_disponiveis = $conn->query("SELECT id, time_a, time_b, DATE_FORMAT(data_jogo, '%d/%m/%H:%i') as data_formatada FROM jogos WHERE status = 'aberto' AND data_jogo > NOW() ORDER BY data_jogo ASC");
+/*
+--------------------------------------
+JOGOS DISPONÍVEIS
+--------------------------------------
+*/
+$stmt = $conn->prepare("
+    SELECT
+        id,
+        time_a,
+        time_b,
+        TO_CHAR(data_jogo, 'DD/MM HH24:MI') AS data_formatada
+    FROM jogos
+    WHERE status = 'aberto'
+    AND data_jogo > NOW()
+    ORDER BY data_jogo ASC
+");
+
+$stmt->execute();
+$jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
