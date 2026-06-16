@@ -1,6 +1,6 @@
 <?php
+require __DIR__ . "/bootstrap.php";
 $conn = require __DIR__ . "/conexao.php";
-session_start();
 
 date_default_timezone_set('America/Sao_Paulo');
 
