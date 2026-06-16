@@ -189,7 +189,7 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 <?php echo $mensagem; ?>
 
-                <?php if ($jogos_disponiveis->num_rows > 0): ?>
+                <?php if (count($jogos_disponiveis) > 0): ?>
                     <form method="POST" action="">
                         <!-- O campo input text antigo do nome do usuário foi removido daqui por segurança -->
 
@@ -197,7 +197,7 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <label for="jogo_id">Selecione a Partida:</label>
                             <select id="jogo_id" name="jogo_id" required>
                                 <option value="">-- Escolha um confronto --</option>
-                                <?php while($jogo = $jogos_disponiveis->fetch_assoc()): ?>
+                                <?php foreach ($jogos_disponiveis as $jogo): ?>
                                     <option value="<?php echo $jogo['id']; ?>">
                                         ⚽ <?php echo $jogo['time_a']; ?> x <?php echo $jogo['time_b']; ?> (<?php echo $jogo['data_formatada']; ?>)
                                     </option>

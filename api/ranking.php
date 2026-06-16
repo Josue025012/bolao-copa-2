@@ -11,6 +11,12 @@ if (!$user_id) {
 }
 
 
+$stmt = $conn->prepare("
+    SELECT id, nome
+    FROM usuarios
+    WHERE id = :id
+");
+
 $stmt->execute(["id" => $user_id]);
 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
