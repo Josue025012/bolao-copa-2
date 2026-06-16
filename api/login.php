@@ -23,13 +23,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             session_regenerate_id(true);
 
-            $_SESSION['usuario_id'] = $usuario['id'];
-            $_SESSION['usuario_nome'] = $usuario['nome'];
-            $_SESSION['usuario_tipo'] = $usuario['tipo'];
+            $session_id = bin2hex(random_bytes(32));
+            $expires_at = date('Y-m-d H:i:s', time() + 86400); // 1 dia
 
-            $_SESSION['test'] = "ok";
-            header("Location: index.php");
-            exit;
+            $stmt = $conn->prepare("
+                INSERT INTO sessions (session_id, user_id, expires_at)
+                VALUES (:sid, :uid, :exp)
+            ");
+
+            $stmt->execute([
+                "sid" => $session_id,
+                "uid" => $usuario['id'],
+                "exp" => $expires_at
+            ]);
+
+            setcookie("session_id", $session_id, time() + 86400, "/", "", false, true);
+
+            header("Location: /api/index.php");
             exit;
 
         } else {

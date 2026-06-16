@@ -1,17 +1,14 @@
 <?php
-session_start();
-var_dump($_SESSION);
-exit;
-
-require __DIR__ . "/bootstrap.php";
 $conn = require __DIR__ . "/conexao.php";
-
+require __DIR__ . "/auth.php";
 date_default_timezone_set('America/Sao_Paulo');
 
-// if (!isset($_SESSION['usuario_id'])) {
-//     header("Location: login.php");
-//     exit;
-// }
+$user_id = getUser($conn);
+
+if (!$user_id) {
+    header("Location: /api/login.php");
+    exit;
+}
 
 $id_logado = $_SESSION['usuario_id'];
 $nome_logado = $_SESSION['usuario_nome'];

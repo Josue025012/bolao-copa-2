@@ -1,12 +1,14 @@
 <?php
 require __DIR__ . "/bootstrap.php";
 $conn = require __DIR__ . "/conexao.php";
+require __DIR__ . "/auth.php";
 
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
+$user_id = getUser($conn);
+
+if (!$user_id) {
+    header("Location: /api/login.php");
     exit;
 }
-
 /*
 --------------------------------------
 1. RANKING
