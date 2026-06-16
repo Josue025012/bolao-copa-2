@@ -5,7 +5,7 @@ session_start();
 date_default_timezone_set('America/Sao_Paulo');
 
 if (!isset($_SESSION['usuario_id'])) {
-    header("Location: /api/login.php");
+    header("Location: login.php");
     exit;
 }
 

@@ -3,7 +3,7 @@ $conn = require __DIR__ . "/conexao.php";
 session_start();
 
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
-    header("Location: /api/login.php");
+    header("Location: login.php");
     exit;
 }
 
