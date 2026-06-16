@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             setcookie("session_id", $session_id, time() + 86400, "/", "", false, true);
 
-            header("Location: /api/index.php");
+            header("Location: index.php");
             exit;
 
         } else {

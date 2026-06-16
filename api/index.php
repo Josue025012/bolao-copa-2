@@ -6,7 +6,7 @@ date_default_timezone_set('America/Sao_Paulo');
 $user_id = getUser($conn);
 
 if (!$user_id) {
-    header("Location: /api/login.php");
+    header("Location: login.php");
     exit;
 }
 
