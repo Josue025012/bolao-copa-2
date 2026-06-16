@@ -1,14 +1,18 @@
 <?php
-$databaseUrl = getenv("DATABASE_URL");
+$host = getenv('DB_HOST');
+$db   = getenv('DB_NAME');
+$user = getenv('DB_USER');
+$pass = getenv('DB_PASSWORD');
 
-if (!$databaseUrl) {
-    die("DATABASE_URL não definida");
-}
+$dsn = "pgsql:host=$host;dbname=$db;port=5432";
 
 try {
-    $conn = new PDO($databaseUrl);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = new PDO($dsn, $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
+
+    echo "Conectou!";
 } catch (PDOException $e) {
-    die("Falha na conexão: " . $e->getMessage());
+    echo "Erro: " . $e->getMessage();
 }
 ?>
