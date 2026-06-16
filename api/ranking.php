@@ -154,7 +154,7 @@ foreach ($resultado_detalhes as $palpite) {
                     </thead>
                     <tbody>
                         <?php
-                        if ($resultado_ranking && $resultado_ranking->num_rows > 0) {
+                        if ($resultado_ranking && count($resultado_ranking) > 0) {
                             $posicao = 1;
                             while($linha = $resultado_ranking->fetch_assoc()) {
                                 $nome_atual = $linha['nome_usuario'];

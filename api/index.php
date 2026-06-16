@@ -201,7 +201,7 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <option value="<?php echo $jogo['id']; ?>">
                                         ⚽ <?php echo $jogo['time_a']; ?> x <?php echo $jogo['time_b']; ?> (<?php echo $jogo['data_formatada']; ?>)
                                     </option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
