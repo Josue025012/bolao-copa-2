@@ -9,6 +9,14 @@ if (!$user_id) {
     header("Location: login.php");
     exit;
 }
+
+
+$stmt->execute(["id" => $user_id]);
+$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$id_logado = $usuario['id'];
+$nome_logado = $usuario['nome'];
+
 /*
 --------------------------------------
 1. RANKING
@@ -92,7 +100,7 @@ foreach ($resultado_detalhes as $palpite) {
         </div>
         <div class="navbar-user">
             <!-- Exibe dinamicamente o nome do usuário logado na sessão -->
-            <i class='bx bx-user-circle'></i> <?php echo htmlspecialchars($_SESSION['usuario_nome']); ?>
+            <i class='bx bx-user-circle'></i> <?php echo htmlspecialchars($nome_logado); ?>
         </div>
     </nav>
 

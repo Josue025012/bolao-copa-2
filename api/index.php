@@ -10,9 +10,17 @@ if (!$user_id) {
     exit;
 }
 
-$id_logado = $_SESSION['usuario_id'];
-$nome_logado = $_SESSION['usuario_nome'];
-$mensagem = "";
+$stmt = $conn->prepare("
+    SELECT id, nome
+    FROM usuarios
+    WHERE id = :id
+");
+
+$stmt->execute(["id" => $user_id]);
+$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$id_logado = $usuario['id'];
+$nome_logado = $usuario['nome'];
 
 /*
 --------------------------------------
