@@ -115,6 +115,7 @@ foreach ($resultado_detalhes as $palpite) {
     <!-- Biblioteca de Ícones Modernos do Boxicons via UNPKG corrigida -->
     <link href="https://unpkg.com" rel="stylesheet">
     <link rel="stylesheet" href="estilo.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
 <body>
 
@@ -128,7 +129,10 @@ foreach ($resultado_detalhes as $palpite) {
         </div>
         <div class="navbar-user">
             <!-- Exibe dinamicamente o nome do usuário logado na sessão -->
-            <i class='bx bx-user-circle'></i> <?php echo htmlspecialchars($nome_logado); ?>
+            <span class="material-symbols-outlined">account_circle</span> <?php echo htmlspecialchars($nome_logado); ?>
+            <a href="index.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
+                <span class="material-symbols-outlined">logout</span>
+            </a>
         </div>
     </nav>
 

@@ -193,6 +193,7 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Biblioteca de Ícones Modernos corrigida para o Boxicons via UNPKG -->
     <link href="https://unpkg.com" rel="stylesheet">
     <link rel="stylesheet" href="estilo.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
 <body>
 
@@ -206,9 +207,11 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="navbar-user">
             <!-- Nome dinâmico exibido no topo -->
-            <?php echo htmlspecialchars($nome_logado); ?>
+            <span class="material-symbols-outlined">account_circle</span> <?php echo htmlspecialchars($nome_logado); ?>
             <a href="index.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
-                <i class='bx bx-log-out'></i> Sair
+                <a href="index.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
+                <span class="material-symbols-outlined">logout</span>
+            </a>
             </a>
         </div>
     </nav>
