@@ -138,6 +138,7 @@ foreach ($resultado_detalhes as $palpite) {
         </aside>
 
         <!-- ÁREA DO CONTEÚDO -->
+                <!-- ÁREA DO CONTEÚDO -->
         <main class="content-area">
             <div class="container container-ranking">
                 <h3>📊 Classificação Geral</h3>
@@ -156,7 +157,8 @@ foreach ($resultado_detalhes as $palpite) {
                         <?php
                         if ($resultado_ranking && count($resultado_ranking) > 0) {
                             $posicao = 1;
-                            foreach ($resultado_detalhes as $linha) {
+                            // CORREÇÃO AQUI: Mudado de $resultado_detalhes para $resultado_ranking
+                            foreach ($resultado_ranking as $linha) {
 
                                 $nome_atual = $linha['nome_usuario'];
                                 $classe_pos = "pos"; $exibir_pos = $posicao;
@@ -167,6 +169,7 @@ foreach ($resultado_detalhes as $palpite) {
                                 echo "<tr class='user-row'>";
                                 echo "<td class='{$classe_pos}'>" . $exibir_pos . "</td>";
                                 echo "<td class='user-name'>" . htmlspecialchars($nome_atual) . "</td>";
+                                // CORREÇÃO NAS LINHAS ABAIXO: Agora as variáveis existem corretamente
                                 echo "<td><span class='badge-qty'>" . $linha['palpites_feitos'] . " jogos</span></td>";
                                 echo "<td><span class='badge-total'>" . $linha['total_pontos'] . " pts</span></td>";
                                 echo "</tr>";
@@ -203,6 +206,7 @@ foreach ($resultado_detalhes as $palpite) {
                 </table>
             </div>
         </main>
+
     </div>
 
     <!-- Script de Controle da Sidebar -->
