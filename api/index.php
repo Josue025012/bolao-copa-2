@@ -177,7 +177,10 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="navbar-user">
             <!-- Nome dinâmico exibido no topo -->
-            <i class='bx bx-user-circle'></i> <?php echo htmlspecialchars($nome_logado); ?>
+            <?php echo htmlspecialchars($nome_logado); ?>
+            <a href="auth.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
+                <i class='bx bx-log-out'></i> Sair
+            </a>
         </div>
     </nav>
 
