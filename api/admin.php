@@ -263,18 +263,18 @@ if (isset($_SESSION['admin_logado']) && $_SESSION['admin_logado'] === true) {
                     </form>
 
                     <h2>🏁 Encerrar Jogo e Computar Pontos</h2>
-                    <?php if ($jogos_abertos->num_rows > 0): ?>
+                    <?php if (count($jogos_abertos) > 0): ?>
                         <form method="POST" action="">
                             <input type="hidden" name="encerrar_jogo" value="1">
                             <div class="form-group">
                                 <label>Selecione a Partida:</label>
                                 <select name="jogo_id" required>
                                     <option value="">-- Escolha o jogo terminado --</option>
-                                    <?php while($jogo = $jogos_abertos->fetch_assoc()): ?>
+                                    <?php foreach ($jogos_abertos as $jogo): ?>
                                         <option value="<?php echo $jogo['id']; ?>">
                                             ⚽ <?php echo $jogo['time_a'] . " x " . $jogo['time_b']; ?>
                                         </option>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="row">
