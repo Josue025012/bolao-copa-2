@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <form method="POST" action="">
                 <div class="form-group">
                     <label>E-mail:</label>
-                    <input type="email" style="padding:12px; border:1px solid #cbd5e1; border-radius:8px; width:100%;" name="email" required>
+                    <input type="email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label>Senha:</label>
