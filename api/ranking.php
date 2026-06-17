@@ -144,7 +144,7 @@ foreach ($resultado_detalhes as $palpite) {
                 <h3>📊 Classificação Geral</h3>
                 <div class="subtitle">Pontuação acumulada e detalhes dos palpites de cada participante</div>
 
-                <table class="ranking-table">
+                <table class="ranking-table" style="overflow-y: auto;">
                     <thead>
                         <tr>
                             <th>Pos</th>
