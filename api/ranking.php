@@ -156,7 +156,7 @@ foreach ($resultado_detalhes as $palpite) {
                         <?php
                         if ($resultado_ranking && count($resultado_ranking) > 0) {
                             $posicao = 1;
-                            foreach ($resultado_detalhes as $palpite) {
+                            foreach ($resultado_detalhes as $linha) {
 
                                 $nome_atual = $linha['nome_usuario'];
                                 $classe_pos = "pos"; $exibir_pos = $posicao;
