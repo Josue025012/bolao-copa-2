@@ -38,8 +38,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         ]);
 
         setcookie("session_id", "", time() - 3600, "/");
+        header("Location: login.php");
+        exit;
     }
 
-    header("Location: login.php");
-    exit;
 }
