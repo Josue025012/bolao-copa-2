@@ -22,11 +22,40 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 $id_logado = $usuario['id'];
 $nome_logado = $usuario['nome'];
 
+
+
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    if (isset($_COOKIE['session_id'])) {
+
+        $stmt = $conn->prepare("
+            DELETE FROM sessions
+            WHERE session_id = :sid
+        ");
+
+        $stmt->execute([
+            "sid" => $id_logado
+        ]);
+
+        setcookie("session_id", "", time() - 3600, "/");
+        header("Location: login.php");
+        exit;
+    }
+
+}
+
+
+
+
 /*
 --------------------------------------
 ENVIAR PALPITE
 --------------------------------------
 */
+
+
+
+
+
 $mensagem = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 

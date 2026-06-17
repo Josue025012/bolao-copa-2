@@ -24,22 +24,4 @@ function getUser($conn) {
 
 // // parte do logout
 
-$conn = require __DIR__ . "/conexao.php";
-if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-    if (isset($_COOKIE['session_id'])) {
-
-        $stmt = $conn->prepare("
-            DELETE FROM sessions
-            WHERE session_id = :sid
-        ");
-
-        $stmt->execute([
-            "sid" => $_COOKIE['session_id']
-        ]);
-
-        setcookie("session_id", "", time() - 3600, "/");
-        header("Location: login.php");
-        exit;
-    }
-
-}
+// $conn = require __DIR__ . "/conexao.php";
