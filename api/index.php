@@ -209,9 +209,7 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Nome dinâmico exibido no topo -->
             <span class="material-symbols-outlined">account_circle</span> <?php echo htmlspecialchars($nome_logado); ?>
             <a href="index.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
-                <a href="index.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
                 <span class="material-symbols-outlined">logout</span>
-            </a>
             </a>
         </div>
     </nav>

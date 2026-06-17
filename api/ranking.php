@@ -130,7 +130,7 @@ foreach ($resultado_detalhes as $palpite) {
         <div class="navbar-user">
             <!-- Exibe dinamicamente o nome do usuário logado na sessão -->
             <span class="material-symbols-outlined">account_circle</span> <?php echo htmlspecialchars($nome_logado); ?>
-            <a href="index.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
+            <a href="ranking.php?action=logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 3px;">
                 <span class="material-symbols-outlined">logout</span>
             </a>
         </div>
