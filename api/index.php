@@ -113,20 +113,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 JOGOS DISPONÍVEIS
 --------------------------------------
 */
+// $stmt = $conn->prepare("
+//     SELECT
+//         id,
+//         time_a,
+//         time_b,
+//         TO_CHAR(data_jogo, 'DD/MM HH24:MI') AS data_formatada
+//     FROM jogos
+//     WHERE status = 'aberto'
+//     AND data_jogo > NOW()
+//     ORDER BY data_jogo ASC
+// ");
+
+// $stmt->execute();
+// $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+/*
+--------------------------------------
+JOGOS DISPONÍVEIS (FILTRADOS)
+--------------------------------------
+*/
 $stmt = $conn->prepare("
     SELECT
-        id,
-        time_a,
-        time_b,
-        TO_CHAR(data_jogo, 'DD/MM HH24:MI') AS data_formatada
-    FROM jogos
-    WHERE status = 'aberto'
-    AND data_jogo > NOW()
-    ORDER BY data_jogo ASC
+        j.id,
+        j.time_a,
+        j.time_b,
+        TO_CHAR(j.data_jogo, 'DD/MM HH24:MI') AS data_formatada
+    FROM jogos j
+    LEFT JOIN palpites p ON j.id = p.jogo_id AND p.usuario_id = :usuario_id
+    WHERE j.status = 'aberto'
+    AND j.data_jogo > NOW()
+    AND p.id IS NULL -- Filtra apenas jogos que NÃO possuem palpite deste usuário
+    ORDER BY j.data_jogo ASC
 ");
 
-$stmt->execute();
+// Passa o ID do usuário logado para a consulta
+$stmt->execute(["usuario_id" => $id_logado]);
 $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
