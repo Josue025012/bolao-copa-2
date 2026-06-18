@@ -21,7 +21,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $id_logado = $usuario['id'];
 $nome_logado = $usuario['nome'];
-$tipo_usuario = $usuario['tipo'];
+$usuario_tipo = $usuario['tipo'];
 
 
 
