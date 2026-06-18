@@ -13,6 +13,24 @@ if (!$user_id) {
 $senha_correta = "admin123";
 $mensagem = "";
 
+
+$stmt = $conn->prepare("
+    SELECT tipo
+    FROM usuarios
+    WHERE id = :id
+");
+
+$stmt->execute(["id" => $user_id]);
+$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$usuario_tipo = $usuario['tipo'];
+
+if (!($usuario_tipo == 'admin')) {
+    header("Location: index.php");
+    exit;
+}
+
+
 /*
 --------------------------------------
 LOGOUT

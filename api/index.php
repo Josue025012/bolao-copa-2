@@ -11,7 +11,7 @@ if (!$user_id) {
 }
 
 $stmt = $conn->prepare("
-    SELECT id, nome
+    SELECT id, nome, tipo
     FROM usuarios
     WHERE id = :id
 ");
@@ -21,6 +21,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $id_logado = $usuario['id'];
 $nome_logado = $usuario['nome'];
+$tipo_usuario = $usuario['tipo'];
 
 
 
@@ -232,12 +233,14 @@ $jogos_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <span>Ver Ranking</span>
                     </a>
                 </li>
-                <li>
-                    <a href="admin.php">
-                        <i class='bx bx-cog'></i>
-                        <span>Painel Admin</span>
-                    </a>
-                </li>
+                <?php if($usuario_tipo == 'admin'): ?>
+                    <li>
+                        <a href="admin.php">
+                            <i class='bx bx-cog'></i>
+                            <span>Painel Admin</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </aside>
 
