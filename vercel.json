@@ -5,7 +5,7 @@
     }
   },
   "routes": [
-    { "src": "/estilo.cssa", "dest": "/estilo.cssa" },
+    { "src": "/estilo.cssa", "dest": "/estilo.css" },
     { "src": "/", "dest": "/api/index.php" },
     { "src": "/index.php", "dest": "/api/index.php" },
     { "src": "/ranking.php", "dest": "/api/ranking.php" },
